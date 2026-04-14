@@ -1,20 +1,26 @@
 const http = require('http');
 const fs = require('fs');
-const exec = require('child_process').exec;
+const path = require('path');
 const PORT = process.env.PORT || 3000; 
 
-// create HTTP server
 const server = http.createServer((req, res) => {
     if (req.url === '/') {
-        res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end('Hello world!');
+        fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+                res.end('服务器内部错误：无法读取 index.html');
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(data);
+        });
     } else {
-        // Catch-all for any other routes to prevent the server from hanging
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end('404 Not Found');
+        res.end('404 页面未找到');
     }
-}); // <-- Added the missing closing brace and parenthesis here
+});
 
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`服务器已启动，正在监听端口 ${PORT}`);
+    console.log(`请确保 index.html 文件与此脚本在同一目录下。`);
 });
